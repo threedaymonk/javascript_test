@@ -199,7 +199,6 @@ class JavaScriptTest
         else
           puts "Skipping #{browser}, not supported on this OS"
         end
-        browser.teardown
       end
       
       @server.shutdown
