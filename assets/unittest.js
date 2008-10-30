@@ -225,11 +225,24 @@ Test.Unit.Runner = Class.create({
   finish: function() {
     this.postResults();
     this.logger.summary(this.summary());
+    if(this.alwaysCloseWindows() || this.getResult().failures == 0 && this.getResult().errors == 0)
+      this.closeWindow();
   },
   
   summary: function() {
     return '#{tests} tests, #{assertions} assertions, #{failures} failures, #{errors} errors'
       .interpolate(this.getResult());
+  },
+
+  alwaysCloseWindows: function() {
+    return this.queryParams.alwaysCloseWindows;
+  },
+
+  closeWindow: function() {
+    try{window.opener='x';}catch(e){}; //This is a hack to make IE not ask your permission to close the window.
+    try{window.open('','_parent','');}catch(e){}; //This is a hack to get Firefox 1.x to close the window without nagging.
+    // For firefox versions later than 2.0 you will need to set dom.allow_scripts_to_close_windows in about:config.
+    window.close();
   }
 });
 

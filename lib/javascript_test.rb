@@ -62,10 +62,6 @@ class JavaScriptTest
       applescript('tell application "Safari" to set URL of front document to "' + url + '"')
     end
   
-    def teardown
-      applescript('tell application "Safari" to close front document')
-    end
-  
     def to_s
       "Safari"
     end
@@ -196,7 +192,7 @@ class JavaScriptTest
         if browser.supported?
           browser.setup
           @tests.each do |test|
-            browser.visit("http://localhost:4711#{test}?resultsURL=http://localhost:4711/results&t=" + ("%.6f" % Time.now.to_f))
+            browser.visit("http://localhost:4711#{test}?resultsURL=http://localhost:4711/results&t=" + ("%.6f" % Time.now.to_f) + "&alwaysCloseWindows=#{always_close_windows}")
             result = @queue.pop
             puts "#{test} on #{browser}: #{result}"
             @result = result.pass?
@@ -209,6 +205,10 @@ class JavaScriptTest
       
       @server.shutdown
       t.join
+    end
+    
+    def always_close_windows
+      true if ENV["AlwaysCloseWindows"]
     end
   
     def mount(path, dir=nil)
