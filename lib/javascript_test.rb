@@ -109,7 +109,7 @@ class JavaScriptTest
   
   class KonquerorBrowser < Browser
     def supported?
-      linux?
+      linux? and system("which kfmclient > /dev/null")
     end
     
     def visit(url)
