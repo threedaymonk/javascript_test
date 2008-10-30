@@ -143,6 +143,10 @@ class JavaScriptTest
       errors > 0 or failures > 0
     end
 
+    def pass?
+      !fail?
+    end
+
     def to_s
       "#{"FAIL! " if fail?}Errors: #{errors}, Failures: #{failures}, Assertations: #{assertions}, Tests: #{tests}"
     end
@@ -186,7 +190,7 @@ class JavaScriptTest
             browser.visit("http://localhost:4711#{test}?resultsURL=http://localhost:4711/results&t=" + ("%.6f" % Time.now.to_f))
             result = @queue.pop
             puts "#{test} on #{browser}: #{result}"
-            @result = false if result.errors > 0 or result.failures > 0
+            @result = result.pass?
           end
           browser.teardown
         else
