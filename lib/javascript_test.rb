@@ -138,6 +138,16 @@ class JavaScriptTest
     end
   end
   
+  class Result < Struct.new(:assertions, :errors, :failures, :tests)
+    def fail?
+      errors > 0 or failures > 0
+    end
+
+    def to_s
+      "#{"FAIL! " if fail?}Errors: #{errors}, Failures: #{failures}, Assertations: #{assertions}, Tests: #{tests}"
+    end
+  end
+
   class Runner
   
     def initialize(name=:test)
@@ -152,7 +162,7 @@ class JavaScriptTest
   
       @server = WEBrick::HTTPServer.new(:Port => 4711) # TODO: make port configurable
       @server.mount_proc("/results") do |req, res|
-        @queue.push(req.query['result'])
+        @queue.push(Result.new(req.query['assertions'].to_i, req.query['errors'].to_i, req.query['failures'].to_i, req.query['tests'].to_i))
         res.body = "OK"
       end
       yield self if block_given?
@@ -176,7 +186,7 @@ class JavaScriptTest
             browser.visit("http://localhost:4711#{test}?resultsURL=http://localhost:4711/results&t=" + ("%.6f" % Time.now.to_f))
             result = @queue.pop
             puts "#{test} on #{browser}: #{result}"
-            @result = false unless result == 'SUCCESS'
+            @result = false if result.errors > 0 or result.failures > 0
           end
           browser.teardown
         else
