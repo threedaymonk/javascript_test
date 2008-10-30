@@ -93,7 +93,7 @@ class JavaScriptTest
     end
 
     def has_an_osx_ie_install?
-      macos? and Dir.glob(File.join(ENV['HOME'], '**', "Internet Explorer.app")).any?
+      macos? and File.exist?(File.join(ENV['HOME'], "Applications", 'CrossOver', "Internet Explorer.app"))
     end
     
     def visit(url)
