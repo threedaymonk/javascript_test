@@ -11,7 +11,7 @@ class JavascriptTestTest < Test::Unit::TestCase
       t.mount("/test", RAILS_ROOT+'/test')
       t.mount('/test/javascript/assets', RAILS_ROOT+'/../assets')
       t.run(test)
-      t.browser(:firefox)
+      t.browser(:safari)
     end
   end
   
