@@ -63,7 +63,7 @@ class JavaScriptTest
     end
   
     def teardown
-      #applescript('tell application "Safari" to close front document')
+      applescript('tell application "Safari" to close front document')
     end
   
     def to_s
