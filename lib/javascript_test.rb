@@ -39,7 +39,7 @@ class JavaScriptTest
     end
   
     def visit(url)
-      system("open -b 'org.mozilla.firefox' '#{url}'") if macos? 
+      system("open -g -b 'org.mozilla.firefox' '#{url}'") if macos? 
       system("#{@path} #{url}") if windows? 
       system("firefox #{url}") if linux?
     end
