@@ -99,7 +99,7 @@ class JavaScriptTest
     def visit(url)
       system("#{@path} #{url}") if windows?
       url = url.gsub('http://localhost:4711/results', 'http%3A%5C%5Clocalhost%3A4711%5Cresults')
-      system("open -g -b 'com.codeweavers.CrossOverHelper.win98.Internet Explorer' '#{url}'") if macos?
+      system("open -g -b 'com.codeweavers.CrossOverHelper.win98.Internet Explorer' '#{url}'") if has_an_osx_ie_install?
     end
   
     def to_s
