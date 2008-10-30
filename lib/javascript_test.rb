@@ -179,7 +179,10 @@ class JavaScriptTest
     end
   
     def define
-      trap("INT") { @server.shutdown }
+      trap("INT") {
+        @server.shutdown
+        exit(1)
+      }
       t = Thread.new { @server.start }
       
       # run all combinations of browsers and tests
