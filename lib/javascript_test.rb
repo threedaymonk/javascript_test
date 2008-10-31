@@ -75,21 +75,9 @@ class JavaScriptTest
     def initialize(path='C:\Program Files\Internet Explorer\IEXPLORE.EXE')
       @path = path
     end
-    
-    def setup
-      if windows?
-        puts %{
-          MAJOR ANNOYANCE on Windows.
-          You have to shut down the Internet Explorer manually after each test
-          for the script to proceed.
-          Any suggestions on fixing this is GREATLY appreaciated!
-          Thank you for your understanding.
-        }
-      end
-    end
-  
+
     def supported?
-      windows? or macos?
+      windows? or has_an_osx_ie_install?
     end
 
     def has_an_osx_ie_install?
