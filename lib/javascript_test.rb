@@ -1,6 +1,7 @@
 #require 'rake/tasklib'
 require 'thread'
 require 'webrick'
+require 'timeout'
 
 class JavaScriptTest
   
@@ -147,20 +148,21 @@ class JavaScriptTest
   end
 
   class Runner
-    attr_reader :port, :always_close_windows
+    attr_reader :port, :always_close_windows, :timeout
     def initialize(options = {})
-      options = {:name => :test, :port => 4711}.merge(options)
+      options = {:name => :test, :port => 4711, :timeout => 30}.merge(options)
       @name = options[:name]
+      @timeout = options[:timeout]
+      @port = options[:port]
       @tests = []
       @browsers = []
       @result = true
-      @port = options[:port]
       @always_close_windows = options[:always_close_windows]
       @queue = Queue.new
   
       result = []
   
-      @server = WEBrick::HTTPServer.new(:Port => port) # TODO: make port configurable
+      @server = WEBrick::HTTPServer.new(:Port => port)
       @server.mount_proc("/results") do |req, res|
         @queue.push(Result.new(req.query['assertions'].to_i, req.query['errors'].to_i, req.query['failures'].to_i, req.query['tests'].to_i))
         res.body = "OK"
@@ -187,12 +189,19 @@ class JavaScriptTest
       @browsers.each do |browser|
         if browser.supported?
           @tests.each do |test|
-            browser.setup
-            browser.visit("http://localhost:#{port}#{test}?resultsURL=http://localhost:#{port}/results&t=" + ("%.6f" % Time.now.to_f) + "&alwaysCloseWindows=#{always_close_windows}")
-            result = @queue.pop
-            puts "#{test} on #{browser}: #{result}"
-            @result = result.pass?
-            browser.teardown
+            begin
+              status = Timeout::timeout(timeout) {
+                browser.setup
+                browser.visit("http://localhost:#{port}#{test}?resultsURL=http://localhost:#{port}/results&t=" + ("%.6f" % Time.now.to_f) + "&alwaysCloseWindows=#{always_close_windows}")
+                result = @queue.pop
+                puts "#{test} on #{browser}: #{result}"
+                @result = false unless result.pass?
+                browser.teardown
+              }
+            rescue Timeout::Error
+              puts "#{test} on #{browser}: Timeout after #{timeout}s"
+              @result = false
+            end
           end
         else
           puts "Skipping #{browser}, not supported on this OS"
