@@ -173,11 +173,13 @@ class JavaScriptTest
     end
   
     def define
+      t = Thread.new { @server.start }
+      
       trap("INT") {
         @server.shutdown
+        t.join
         exit(1)
       }
-      t = Thread.new { @server.start }
       
       # run all combinations of browsers and tests
       @browsers.each do |browser|
