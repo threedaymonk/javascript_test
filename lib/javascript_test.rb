@@ -86,7 +86,7 @@ class JavaScriptTest
     
     def visit(url)
       system("#{@path} #{url}") if windows?
-      url = url.gsub('http://localhost:4711/results', 'http%3A%5C%5Clocalhost%3A4711%5Cresults')
+      url = url.gsub(%r{http://localhost:([0-9]+)/results}, 'http%3A%5C%5Clocalhost%3A\1%5Cresults')
       system("open -g -b 'com.codeweavers.CrossOverHelper.win98.Internet Explorer' '#{url}'") if has_an_osx_ie_install?
     end
   
@@ -147,18 +147,20 @@ class JavaScriptTest
   end
 
   class Runner
-  
-    def initialize(name=:test)
-      @name = name
+    attr_reader :port, :always_close_windows
+    def initialize(options = {})
+      options = {:name => :test, :port => 4711}.merge(options)
+      @name = options[:name]
       @tests = []
       @browsers = []
       @result = true
-  
+      @port = options[:port]
+      @always_close_windows = options[:always_close_windows]
       @queue = Queue.new
   
       result = []
   
-      @server = WEBrick::HTTPServer.new(:Port => 4711) # TODO: make port configurable
+      @server = WEBrick::HTTPServer.new(:Port => port) # TODO: make port configurable
       @server.mount_proc("/results") do |req, res|
         @queue.push(Result.new(req.query['assertions'].to_i, req.query['errors'].to_i, req.query['failures'].to_i, req.query['tests'].to_i))
         res.body = "OK"
@@ -186,7 +188,7 @@ class JavaScriptTest
         if browser.supported?
           @tests.each do |test|
             browser.setup
-            browser.visit("http://localhost:4711#{test}?resultsURL=http://localhost:4711/results&t=" + ("%.6f" % Time.now.to_f) + "&alwaysCloseWindows=#{always_close_windows}")
+            browser.visit("http://localhost:#{port}#{test}?resultsURL=http://localhost:#{port}/results&t=" + ("%.6f" % Time.now.to_f) + "&alwaysCloseWindows=#{always_close_windows}")
             result = @queue.pop
             puts "#{test} on #{browser}: #{result}"
             @result = result.pass?
@@ -199,10 +201,6 @@ class JavaScriptTest
       
       @server.shutdown
       t.join
-    end
-    
-    def always_close_windows
-      true if ENV["AlwaysCloseWindows"]
     end
   
     def mount(path, dir=nil)

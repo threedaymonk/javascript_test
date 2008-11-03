@@ -1,6 +1,10 @@
 desc "Run tests for JavaScripts"
 task 'test:javascripts' => :environment do
-  JavaScriptTest::Runner.new do |t| 
+  options = {}
+  options[:port] = ENV["JAVASCRIPT_TEST_PORT"].to_i if ENV.has_key? "JAVASCRIPT_TEST_PORT"
+  options[:always_close_windows] = true if ENV.has_key? "ALWAYS_CLOSE_WINDOWS"
+
+  JavaScriptTest::Runner.new(options) do |t|
     
     t.mount("/", RAILS_ROOT)
     t.mount("/test", RAILS_ROOT+'/test')
