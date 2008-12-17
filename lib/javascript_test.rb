@@ -181,6 +181,7 @@ class JavaScriptTest
       
       trap("INT") {
         @server.shutdown
+        t.terminate
         t.join
         exit(1)
       }
