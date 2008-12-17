@@ -195,12 +195,12 @@ class JavaScriptTest
                 browser.setup
                 browser.visit("http://localhost:#{port}#{test}?resultsURL=http://localhost:#{port}/results&t=" + ("%.6f" % Time.now.to_f) + "&alwaysCloseWindows=#{always_close_windows}")
                 result = @queue.pop
-                puts "#{test} on #{browser}: #{result}"
-                @result = false unless result.pass?
+                puts "#{test} on #{browser}: \n      #{result}"
+                @result = false if result.fail?
                 browser.teardown
               }
             rescue Timeout::Error
-              puts "#{test} on #{browser}: Timeout after #{timeout}s"
+              puts "#{test} on #{browser}: \n      Timeout after #{timeout}s"
               @result = false
             end
           end
