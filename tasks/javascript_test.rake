@@ -5,7 +5,6 @@ task 'test:javascripts' => :environment do
   options[:always_close_windows] = true if ENV.has_key? "ALWAYS_CLOSE_WINDOWS"
 
   JavaScriptTest::Runner.new(options) do |t|
-    
     t.mount("/", RAILS_ROOT)
     t.mount("/test", RAILS_ROOT+'/test')
     t.mount('/test/javascript/assets', File.join(File.dirname(__FILE__), *%w[.. assets]))
@@ -14,9 +13,13 @@ task 'test:javascripts' => :environment do
       t.run(File.basename(js,'.html').gsub(/_test/,''))
     end
     
-    t.browser(:safari)
-    t.browser(:firefox)
-    t.browser(:ie)
-    t.browser(:konqueror)
+    if ENV["BROWSER"]
+      t.browser(ENV["BROWSER"].to_sym)
+    else
+      t.browser(:safari)
+      t.browser(:firefox)
+      t.browser(:ie)
+      t.browser(:konqueror)
+    end
   end
 end
