@@ -208,9 +208,14 @@ class JavaScriptTest
           puts "Skipping #{browser}, not supported on this OS"
         end
       end
-      
+
       @server.shutdown
       t.join
+
+      unless @result
+        puts "Errors encountered while running javascript tests."
+        exit(1)
+      end
     end
   
     def mount(path, dir=nil)
