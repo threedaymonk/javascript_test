@@ -90,13 +90,12 @@ class JavaScriptTest
     end
 
     def visit(url)
-      case
-      when windows?
+      if windows?
         system("#{@path} #{url}")
-      when has_an_osx_ie_install?
+      elsif has_an_osx_ie_install?
         url = url.gsub(%r{http://localhost:([0-9]+)/results}, 'http%3A%5C%5Clocalhost%3A\1%5Cresults')
         system("open -g -b 'com.codeweavers.CrossOverHelper.win98.Internet Explorer' '#{url}'")
-      when has_an_ies4linux_install?
+      elsif has_an_ies4linux_install?
         system("#{ENV['HOME']}/bin/ie6 '#{url}'")
       end
     end
