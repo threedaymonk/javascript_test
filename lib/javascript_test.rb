@@ -78,17 +78,27 @@ class JavaScriptTest
     end
 
     def supported?
-      windows? or has_an_osx_ie_install?
+      windows? or has_an_osx_ie_install? or has_an_ies4linux_install?
     end
 
     def has_an_osx_ie_install?
       macos? and File.exist?(File.join(ENV['HOME'], "Applications", 'CrossOver', "Internet Explorer.app"))
     end
-    
+
+    def has_an_ies4linux_install?
+      linux? and File.exist?(File.join(ENV['HOME'], 'bin', 'ie6'))
+    end
+
     def visit(url)
-      system("#{@path} #{url}") if windows?
-      url = url.gsub(%r{http://localhost:([0-9]+)/results}, 'http%3A%5C%5Clocalhost%3A\1%5Cresults')
-      system("open -g -b 'com.codeweavers.CrossOverHelper.win98.Internet Explorer' '#{url}'") if has_an_osx_ie_install?
+      case
+      when windows?
+        system("#{@path} #{url}")
+      when has_an_osx_ie_install?
+        url = url.gsub(%r{http://localhost:([0-9]+)/results}, 'http%3A%5C%5Clocalhost%3A\1%5Cresults')
+        system("open -g -b 'com.codeweavers.CrossOverHelper.win98.Internet Explorer' '#{url}'")
+      when has_an_ies4linux_install?
+        system("#{ENV['HOME']}/bin/ie6 '#{url}'")
+      end
     end
   
     def to_s
